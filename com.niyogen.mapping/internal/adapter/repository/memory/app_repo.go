@@ -3,7 +3,9 @@ package memory
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
+	"time"
 
 	"com.niyogen/openclaw/internal/domain"
 	"com.niyogen/openclaw/internal/port"
@@ -29,6 +31,12 @@ func (r *appRepo) RegisterApp(ctx context.Context, app domain.RegisteredApp) err
 	if _, ok := r.apps[app.TenantID]; !ok {
 		r.apps[app.TenantID] = make(map[string]domain.RegisteredApp)
 	}
+	app.CreatedAt = time.Now()
+	app.UpdatedAt = time.Now()
+	if !app.Enabled {
+		app.Enabled = true // default to enabled on register
+	}
+
 	r.apps[app.TenantID][app.AppID] = app
 	return nil
 }
@@ -94,3 +102,24 @@ func (r *appRepo) DeleteApp(ctx context.Context, tenantID, appID string) error {
 	return nil
 }
 
+// UpdateAppEnabled updates the kill switch state for an app.
+func (r *appRepo) UpdateAppEnabled(ctx context.Context, tenantID, appID string, enabled bool) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	tenantApps, ok := r.apps[tenantID]
+	if !ok {
+		return fmt.Errorf("app not found")
+	}
+
+	app, ok := tenantApps[appID]
+	if !ok {
+		return fmt.Errorf("app not found")
+	}
+
+	app.Enabled = enabled
+	app.UpdatedAt = time.Now()
+	tenantApps[appID] = app
+
+	return nil
+}

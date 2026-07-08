@@ -81,4 +81,34 @@ func TestRepositoryIntegration(t *testing.T) {
 	if len(records) != 1 {
 		t.Errorf("expected 1 record, got %d", len(records))
 	}
+
+	// 5. App Enable/Disable (Kill Switch)
+	err = appRepo.UpdateAppEnabled(ctx, "tenant-1", "app-int-1", false)
+	if err != nil {
+		t.Fatalf("failed to update app enabled state: %v", err)
+	}
+	disabledApp, _ := appRepo.GetApp(ctx, "tenant-1", "app-int-1")
+	if disabledApp.Enabled {
+		t.Errorf("expected app to be disabled")
+	}
+
+	// 6. Trigger Keys
+	tkRepo := memory.NewTriggerKeyRepo()
+	tk := domain.TriggerKey{
+		KeyHash:     "hash123",
+		IntentName:  "test_intent",
+		UserID:      "user1",
+		TenantID:    "tenant-1",
+		Scope:       domain.ScopeReadOnly,
+		CallbackURL: "http://example.com/callback",
+		ExpiresAt:   time.Now().Add(24 * time.Hour),
+	}
+	err = tkRepo.SaveTriggerKey(ctx, tk)
+	if err != nil {
+		t.Fatalf("failed to save trigger key: %v", err)
+	}
+	fetchedTk, err := tkRepo.GetTriggerKey(ctx, "hash123")
+	if err != nil || fetchedTk.IntentName != "test_intent" {
+		t.Fatalf("failed to fetch trigger key or mismatch intent: %v", err)
+	}
 }
