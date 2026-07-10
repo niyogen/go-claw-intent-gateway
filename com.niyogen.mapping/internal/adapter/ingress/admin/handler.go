@@ -48,6 +48,16 @@ func (h *Handler) getTenantID(r *http.Request) string {
 	return tenant
 }
 
+// @Summary Register a new application
+// @Description Register an external app to expose its intents to OpenClaw.
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param request body RegisterAppRequest true "Application details"
+// @Success 201 {object} RegisterAppResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /v1/apps [post]
 func (h *Handler) handleRegisterApp(w http.ResponseWriter, r *http.Request) {
 	var req RegisterAppRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -75,6 +85,18 @@ func (h *Handler) handleRegisterApp(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, RegisterAppResponse{Status: "success", App: app})
 }
 
+// @Summary Generate a Trigger Key
+// @Description Create a new trigger key for an application to initiate async flows.
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param id path string true "App ID"
+// @Param request body TriggerKeyRequest true "Trigger key details"
+// @Success 201 {object} TriggerKeyResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /v1/apps/{id}/trigger-keys [post]
 func (h *Handler) handleManageTriggerKeys(w http.ResponseWriter, r *http.Request) {
 	appID := r.PathValue("id")
 	tenantID := h.getTenantID(r)
@@ -118,6 +140,14 @@ func (h *Handler) handleManageTriggerKeys(w http.ResponseWriter, r *http.Request
 	})
 }
 
+// @Summary Disable an application (Kill Switch)
+// @Description Immediately disable an application from sending or receiving intents.
+// @Tags admin
+// @Produce json
+// @Param id path string true "App ID"
+// @Success 200 {object} SuccessResponse
+// @Failure 404 {object} ErrorResponse
+// @Router /v1/apps/{id}/enable [delete]
 func (h *Handler) handleKillSwitch(w http.ResponseWriter, r *http.Request) {
 	appID := r.PathValue("id")
 	tenantID := h.getTenantID(r)
