@@ -26,15 +26,11 @@ func TestAuditRepo_ConcurrentAccess(t *testing.T) {
 
 	wg.Wait()
 
-	// Type assertion to verify length since port doesn't expose it
-	memRepo, ok := repo.(*auditRepo)
-	if !ok {
-		t.Fatalf("expected *auditRepo")
+	records, err := repo.ListRecords(ctx, "tenant-1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
-
-	memRepo.mu.Lock()
-	defer memRepo.mu.Unlock()
-	if len(memRepo.records) != 100 {
-		t.Errorf("expected 100 records, got %d", len(memRepo.records))
+	if len(records) != 100 {
+		t.Errorf("expected 100 records, got %d", len(records))
 	}
 }

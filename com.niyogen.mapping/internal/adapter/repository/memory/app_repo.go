@@ -63,3 +63,34 @@ func (r *appRepo) ListApps(ctx context.Context, tenantID string) ([]domain.Regis
 	}
 	return apps, nil
 }
+
+func (r *appRepo) UpdateApp(ctx context.Context, app domain.RegisteredApp) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	tenantApps, ok := r.apps[app.TenantID]
+	if !ok {
+		return ErrAppNotFound
+	}
+	if _, ok := tenantApps[app.AppID]; !ok {
+		return ErrAppNotFound
+	}
+	tenantApps[app.AppID] = app
+	return nil
+}
+
+func (r *appRepo) DeleteApp(ctx context.Context, tenantID, appID string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	tenantApps, ok := r.apps[tenantID]
+	if !ok {
+		return ErrAppNotFound
+	}
+	if _, ok := tenantApps[appID]; !ok {
+		return ErrAppNotFound
+	}
+	delete(tenantApps, appID)
+	return nil
+}
+

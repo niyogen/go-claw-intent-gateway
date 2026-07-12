@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -22,7 +23,9 @@ func NewReplayStore() port.ReplayStore {
 	}
 }
 
-func (r *replayStore) CheckAndStore(ctx context.Context, key string, ttlSeconds int) error {
+func (r *replayStore) CheckAndStore(ctx context.Context, channelType, senderID, nonce string, ttlSeconds int) error {
+	key := channelType + ":" + senderID + ":" + nonce
+
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -46,5 +49,16 @@ func (r *replayStore) CheckAndStore(ctx context.Context, key string, ttlSeconds 
 	}
 
 	r.nonces[key] = now.Add(time.Duration(ttlSeconds) * time.Second)
+	return nil
+}
+
+func ValidateTimestamp(timestamp time.Time, maxAge, maxFuture time.Duration) error {
+	age := time.Since(timestamp)
+	if age > maxAge {
+		return fmt.Errorf("message too old: %v exceeds max age %v", age, maxAge)
+	}
+	if age < -maxFuture {
+		return fmt.Errorf("message from the future: %v exceeds max skew %v", -age, maxFuture)
+	}
 	return nil
 }

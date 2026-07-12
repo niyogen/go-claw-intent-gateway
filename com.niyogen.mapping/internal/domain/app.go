@@ -10,9 +10,22 @@ type RegisteredApp struct {
 	Description string
 	BaseURL     string
 	AuthType    string
-	ConfigHash  string // SHA256 of the YAML config for tamper detection
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ConfigHash       string // SHA256 of the YAML config for tamper detection
+	Endpoints        []IntentDef
+	Events           []EventDef
+	AllowedSourceIPs []string
+	RequireTLS       bool
+	Active           bool
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+// EventDef represents an event that the app can emit
+type EventDef struct {
+	Name          string
+	Description   string
+	MaxRate       string // e.g. "30/minute"
+	PayloadSchema map[string]ParamRule
 }
 
 // IntentScope defines if an intent mutates state

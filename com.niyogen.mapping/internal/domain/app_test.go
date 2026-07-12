@@ -30,6 +30,27 @@ func TestRegisteredApp_Initialization(t *testing.T) {
 	if app.CreatedAt != now {
 		t.Errorf("expected time %v, got %v", now, app.CreatedAt)
 	}
+	if app.Active != false {
+		t.Errorf("expected Active to be false by default")
+	}
+}
+
+func TestEventDef_Initialization(t *testing.T) {
+	event := domain.EventDef{
+		Name:        "inspection_failed",
+		Description: "Triggered when inspection fails",
+		MaxRate:     "30/minute",
+		PayloadSchema: map[string]domain.ParamRule{
+			"equipment_id": {Type: "string"},
+		},
+	}
+
+	if event.Name != "inspection_failed" {
+		t.Errorf("expected inspection_failed, got %s", event.Name)
+	}
+	if event.PayloadSchema["equipment_id"].Type != "string" {
+		t.Errorf("expected string type for equipment_id")
+	}
 }
 
 func TestIntentDef_Initialization(t *testing.T) {

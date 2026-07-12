@@ -46,13 +46,13 @@ func TestRepositoryIntegration(t *testing.T) {
 
 	// 3. Replay Protection
 	nonceKey := "nonce-int-123"
-	err = replayStore.CheckAndStore(ctx, nonceKey, 60)
+	err = replayStore.CheckAndStore(ctx, "whatsapp", "user-1", nonceKey, 60)
 	if err != nil {
 		t.Fatalf("first replay check failed: %v", err)
 	}
 
 	// Second check should fail
-	err = replayStore.CheckAndStore(ctx, nonceKey, 60)
+	err = replayStore.CheckAndStore(ctx, "whatsapp", "user-1", nonceKey, 60)
 	if err == nil {
 		t.Errorf("expected error on replay, got nil")
 	}
@@ -75,5 +75,10 @@ func TestRepositoryIntegration(t *testing.T) {
 	err = auditRepo.LogExecution(ctx, auditRecord)
 	if err != nil {
 		t.Fatalf("failed to log audit execution: %v", err)
+	}
+
+	records, _ := auditRepo.ListRecords(ctx, "tenant-1")
+	if len(records) != 1 {
+		t.Errorf("expected 1 record, got %d", len(records))
 	}
 }

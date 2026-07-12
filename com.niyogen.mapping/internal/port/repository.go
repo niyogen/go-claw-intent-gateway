@@ -11,11 +11,14 @@ type AppRepository interface {
 	RegisterApp(ctx context.Context, app domain.RegisteredApp) error
 	GetApp(ctx context.Context, tenantID, appID string) (*domain.RegisteredApp, error)
 	ListApps(ctx context.Context, tenantID string) ([]domain.RegisteredApp, error)
+	UpdateApp(ctx context.Context, app domain.RegisteredApp) error
+	DeleteApp(ctx context.Context, tenantID, appID string) error
 }
 
 // AuditRepository handles the immutable audit trail (Layer 7).
 type AuditRepository interface {
 	LogExecution(ctx context.Context, record AuditRecord) error
+	ListRecords(ctx context.Context, tenantID string) ([]AuditRecord, error)
 }
 
 type AuditRecord struct {
@@ -34,6 +37,8 @@ type AuditRecord struct {
 
 // ReplayStore manages nonce tracking for replay protection.
 type ReplayStore interface {
-	// CheckAndStore returns an error if the nonce was already seen.
-	CheckAndStore(ctx context.Context, key string, ttlSeconds int) error
+	// CheckAndStore rejects duplicate nonces within the TTL window.
+	// The nonce is bound to channelType+senderID — a nonce from WhatsApp
+	// user A cannot be replayed as an API call from user B.
+	CheckAndStore(ctx context.Context, channelType, senderID, nonce string, ttlSeconds int) error
 }

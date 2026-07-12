@@ -110,7 +110,7 @@ Intern B's work focuses on the precision pipeline, security mechanics, and data 
 
 ### Task 2 — Security Foundations (Layers 1-2 & 4-7)
 **Assignee:** Intern B
-**Status:** 🚧 In Progress
+**Status:** 🔲 Not Started
 
 **Description:**
 Build all packages inside `com.niyogen.mapping/internal/security/`:
