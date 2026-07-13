@@ -132,7 +132,7 @@ Build all packages inside `com.niyogen.mapping/internal/security/`:
 
 ### Task 3 — In-Memory Mock Repositories (Phase 0a)
 **Assignee:** Intern B
-**Status:** 🔲 Not Started
+**Status:** ✅ Completed
 
 **Description:**
 Build `com.niyogen.mapping/internal/adapter/repository/memory/`. Implement all port interfaces with thread-safe in-memory maps:
