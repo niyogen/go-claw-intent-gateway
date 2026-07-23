@@ -30,8 +30,8 @@ func TestRegisteredApp_Initialization(t *testing.T) {
 	if app.CreatedAt != now {
 		t.Errorf("expected time %v, got %v", now, app.CreatedAt)
 	}
-	if app.Active != false {
-		t.Errorf("expected Active to be false by default")
+	if app.Enabled != false {
+		t.Errorf("expected Enabled to be false by default")
 	}
 }
 

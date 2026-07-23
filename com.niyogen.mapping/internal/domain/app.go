@@ -15,7 +15,7 @@ type RegisteredApp struct {
 	Events           []EventDef
 	AllowedSourceIPs []string
 	RequireTLS       bool
-	Active           bool
+	Enabled          bool   // Kill switch state
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }

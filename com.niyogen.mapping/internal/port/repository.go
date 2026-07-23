@@ -13,6 +13,15 @@ type AppRepository interface {
 	ListApps(ctx context.Context, tenantID string) ([]domain.RegisteredApp, error)
 	UpdateApp(ctx context.Context, app domain.RegisteredApp) error
 	DeleteApp(ctx context.Context, tenantID, appID string) error
+	UpdateAppEnabled(ctx context.Context, tenantID, appID string, enabled bool) error
+}
+
+// TriggerKeyRepository manages trigger keys for asynchronous intents.
+type TriggerKeyRepository interface {
+	SaveTriggerKey(ctx context.Context, key domain.TriggerKey) error
+	GetTriggerKey(ctx context.Context, keyHash string) (*domain.TriggerKey, error)
+	RevokeTriggerKey(ctx context.Context, keyHash string) error
+	ListTriggerKeys(ctx context.Context, tenantID string) ([]domain.TriggerKey, error)
 }
 
 // AuditRepository handles the immutable audit trail (Layer 7).
